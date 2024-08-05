@@ -14,14 +14,22 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
 					$table->id();
 					$table->string('title');
-					// $table->unsignedBigInteger('author_id');
+
 					// // buat relasi dengan table users
-					// $table->foreign('author_id')->references('id')->on('users');
+					// $table->unsignedBigInteger('author_id');
+					// $table->foreign('author_id')->references('id')->on('users')->onDelete('cascade');
+					// $table->unsignedBigInteger('category_id');
+					// $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
 					// atau
 					$table->foreignId('author_id')->constrained(
 						table:'users',
-						indexName: 'post_author_id'
+						indexName: 'post_author_id',
 					);
+					$table->foreignId('category_id')->constrained(
+						table:'categories',
+						indexName: 'post_category_id',
+					);
+
 					$table->string('slug')->unique();
 					$table->text('body');
 					$table->timestamps();
