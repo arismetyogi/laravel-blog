@@ -10,20 +10,27 @@ Route::get('/', function () {
 	return view('home', ['title' => 'Home Page']);
 });
 
-Route::get('about', function (){
+Route::get('/about', function (){
 //    mengirimkan data berupa array associative pada view about
 	return view('about' ,['title' => 'About Page', 'name' => 'Yogi Arismet']);
 });
 
 // mengambil data dari model Post dengan method all()
-Route::get('posts', function (){
+Route::get('/posts', function (){
 	// $posts = Post::simplePaginate(5); //limit per page 5 data -> mengurangi query
 
 	//eager loading: load semua tabel di awal, bukan per record
 	// $posts = Post::with(['author', 'category'])->latest()->get();
 
-		$posts = Post::latest()->get();
-	return view('posts', ['title' => 'Blogs', 'posts' => $posts]);
+	// dump(request('search'));
+	// $posts = Post::latest();
+
+	// Query Scopes move to model
+	// if(request('search') ) {
+	// 	$posts->where('title', 'like', '%' . request('search') . '%');
+	// }
+
+	return view('posts', ['title' => 'Blogs', 'posts' => Post::filter(request(['search', 'category', 'author']))->latest()->get()]);
 });
 
 // route model binding: bing slug pada route
@@ -36,14 +43,14 @@ Route::get('/posts/{post:slug}', function(Post $post) {
 Route::get('/authors/{user:username}', function(User $user) {
 	// Lazy Eager Loading -> load setelah parentnya dipanggil
 	// $posts = $user->posts->load(['category', 'author']);
-	return view('posts', ['title' => count($user->posts) . ' Articles by ' . $user->name, 'posts' => $user->posts]);
+	return view('posts', ['title' => count($user->posts) . ' Articles by ' . $user->name, 'posts' => $user->posts()]);
 });
 
 // route model binding: bing slug pada route
 Route::get('/categories/{category:slug}', function(Category $category) {
 	// $post = Post::find($slug);
 	// $posts = $category->posts->load(['category', 'author']);
-	return view('posts', ['title' => 'Articles on: ' .  $category->name, 'posts' => $category->posts]);
+	return view('posts', ['title' => 'Articles on: ' .  $category->name, 'posts' => $category->posts()]);
 });
 
 Route::get('contact', function (){
